@@ -108,7 +108,7 @@ The bot generates:
 
 ### ElevenLabs TTS
 - **Model**: `eleven_multilingual_v2` (most advanced v3 for better Urdu pronunciation)
-- **Voice ID**: `p2QMAuFNgXmBsO95wovm` (Musawar Abbasi)
+- **Voice ID**: `1t3sfuW00ixjYR0WrUwv` (Female Anchor)
 - **Voice Settings**:
   - Stability: 0.5
   - Similarity Boost: 0.8

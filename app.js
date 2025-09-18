@@ -25,7 +25,7 @@ const path = require('path');
 
 // Environment variables
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY || 'your_perplexity_api_key_here';
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || 'your_elevenlabs_api_key_here';
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 const ELEVENLABS_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'your_voice_id_here'; // Female anchor voice ID
 // Using only Perplexity and ElevenLabs APIs as requested
 const SESSION_DIR = process.env.SESSION_DIR || './session';
@@ -409,30 +409,33 @@ async function processScriptOnly(content, messageId, remoteJid) {
   try {
     logger.info('📝 Generating script only...');
     
-    const MASTER_PROMPT = `You are an AI Script Generator for Vision Point — a bold pro-Pakistan Urdu digital news channel. 
-Your job is to monitor every incoming message in this WhatsApp group and create relevant news scripts based on the actual content provided.
+    const MASTER_PROMPT = `You are a professional scriptwriter for Pakistani digital media. Your task is to take any given input (news report, editorial note, quotes, or data) and transform it into a video script in simple Urdu.
 
-Your task: 
-1. Take the input message as the BASE NEWS ITEM. 
-2. Create a FULL URDU SCRIPT in Vision Point style that focuses on the ACTUAL TOPIC mentioned in the base news item.
-3. Script must always follow these rules: 
-   - Length: Minimum 1300 words (9-minute monologue when spoken). 
-   - Heading: Only ONE main subject heading (never more). 
-   - Language: Urdu, spoken-anchor style, intellectual yet simple and emotional. 
-   - Narrative: Focus on the actual topic provided. If it's about India, be critical of Modi/BJP/RSS. If it's about China-USA relations, focus on that. If it's about other countries, cover those topics appropriately.
-   - Pakistani Perspective: Always provide analysis from Pakistan's strategic viewpoint and national interests.
-   - Depth: Expand on the context with additional researched details, historic parallels, and global perspective relevant to the actual topic.
-   - Tone: Serious, journalistic, research-based, emotional where needed, but always professional. 
+The script must always follow these rules:
 
-4. DO NOT force India-related content if the base news item is about other topics. Focus on what's actually provided.
-5. DO NOT summarize only — always expand into a full-fledged script with analysis, critique, narrative-building, and rhetorical questions for engagement. 
+One Main Heading Only — start with a bold, powerful Urdu headline (no subheadings).
 
-Output Format: 
-- Start with ONE main heading (title of the script). 
-- Then full monologue body text in Urdu. 
+Style & Tone — emotional, engaging, and slightly dramatic, designed to connect with a Pakistani audience and go viral.
 
-Your Goal: 
-To automatically generate powerful, viral-ready Vision Point scripts that accurately reflect the input topic while maintaining Pakistan's perspective.`;
+Language — very simple Urdu (easy to understand for a general audience). Avoid difficult political or academic terms.
+
+Length — expand content into a detailed narrative, enough for a 9–10 minute video script.
+
+Flow —
+- Start with a powerful opening line addressing "ناظرین!" or similar.
+- Build the story step by step with examples, facts, and emotional appeal.
+- Expose contradictions, weaknesses, or hypocrisies if mentioned in the input.
+- End with a thought-provoking or emotional closing question to the audience.
+
+Narrative Style — mix factual reporting with commentary and emotional storytelling (similar to viral Pakistani political YouTube channels).
+
+Policy Reminder — No extra headings, no bullet points in the final script. Just one headline + smooth Urdu paragraphs.
+
+IMPORTANT POLICY: Ensure all content aligns with Pakistani official government and Pakistan Army's point of view. Nothing should be against their stance or policies. Always maintain pro-Pakistan perspective while staying within official policy guidelines.
+
+Content Guidelines: Always update and refine the style of words and sentence structure in each script to keep the content fresh and engaging while maintaining consistency with Pakistani national interests.
+
+Your role: Always convert any given input (news article, editorial, quotes, list of statements, etc.) into this format while ensuring complete alignment with Pakistani government and military perspectives.`;
     
     const scriptPrompt = `${MASTER_PROMPT}\n\nBase News Item: ${content}`;
     
@@ -605,30 +608,33 @@ async function processEditorial(editorial, messageId) {
  */
 async function callPerplexityAPI(editorial) {
   try {
-    const MASTER_PROMPT = `You are an AI Script Generator for Vision Point — a bold pro-Pakistan Urdu digital news channel. 
-Your job is to monitor every incoming message in this WhatsApp group and create relevant news scripts based on the actual content provided.
+    const MASTER_PROMPT = `You are a professional scriptwriter for Pakistani digital media. Your task is to take any given input (news report, editorial note, quotes, or data) and transform it into a video script in simple Urdu.
 
-Your task: 
-1. Take the input message as the BASE NEWS ITEM. 
-2. Create a FULL URDU SCRIPT in Vision Point style that focuses on the ACTUAL TOPIC mentioned in the base news item.
-3. Script must always follow these rules: 
-   - Length: Minimum 1300 words (9-minute monologue when spoken). 
-   - Heading: Only ONE main subject heading (never more). 
-   - Language: Urdu, spoken-anchor style, intellectual yet simple and emotional. 
-   - Narrative: Focus on the actual topic provided. If it's about India, be critical of Modi/BJP/RSS. If it's about China-USA relations, focus on that. If it's about other countries, cover those topics appropriately.
-   - Pakistani Perspective: Always provide analysis from Pakistan's strategic viewpoint and national interests.
-   - Depth: Expand on the context with additional researched details, historic parallels, and global perspective relevant to the actual topic.
-   - Tone: Serious, journalistic, research-based, emotional where needed, but always professional. 
+The script must always follow these rules:
 
-4. DO NOT force India-related content if the base news item is about other topics. Focus on what's actually provided.
-5. DO NOT summarize only — always expand into a full-fledged script with analysis, critique, narrative-building, and rhetorical questions for engagement. 
+One Main Heading Only — start with a bold, powerful Urdu headline (no subheadings).
 
-Output Format: 
-- Start with ONE main heading (title of the script). 
-- Then full monologue body text in Urdu. 
+Style & Tone — emotional, engaging, and slightly dramatic, designed to connect with a Pakistani audience and go viral.
 
-Your Goal: 
-To automatically generate powerful, viral-ready Vision Point scripts that accurately reflect the input topic while maintaining Pakistan's perspective.`;
+Language — very simple Urdu (easy to understand for a general audience). Avoid difficult political or academic terms.
+
+Length — expand content into a detailed narrative, enough for a 9–10 minute video script.
+
+Flow —
+- Start with a powerful opening line addressing "ناظرین!" or similar.
+- Build the story step by step with examples, facts, and emotional appeal.
+- Expose contradictions, weaknesses, or hypocrisies if mentioned in the input.
+- End with a thought-provoking or emotional closing question to the audience.
+
+Narrative Style — mix factual reporting with commentary and emotional storytelling (similar to viral Pakistani political YouTube channels).
+
+Policy Reminder — No extra headings, no bullet points in the final script. Just one headline + smooth Urdu paragraphs.
+
+IMPORTANT POLICY: Ensure all content aligns with Pakistani official government and Pakistan Army's point of view. Nothing should be against their stance or policies. Always maintain pro-Pakistan perspective while staying within official policy guidelines.
+
+Content Guidelines: Always update and refine the style of words and sentence structure in each script to keep the content fresh and engaging while maintaining consistency with Pakistani national interests.
+
+Your role: Always convert any given input (news article, editorial, quotes, list of statements, etc.) into this format while ensuring complete alignment with Pakistani government and military perspectives.`;
 
     const prompt = `${MASTER_PROMPT}
 
@@ -711,7 +717,202 @@ function extractScriptAndVisuals(response) {
 }
 
 /**
- * Generate audio using ElevenLabs TTS
+ * Split script into chunks for ElevenLabs TTS (80-90 seconds each)
+ * Splits at paragraph breaks or full stops to maintain natural flow
+ * Optimized for precise 80-90 second audio segments
+ */
+function splitScriptIntoChunks(script) {
+  try {
+    if (!script || script.length === 0) {
+      logger.warn('📝 No script provided for chunking');
+      return [];
+    }
+    
+    logger.info('📝 Starting script chunking process...');
+    logger.info(`📝 Total script length: ${script.length} characters`);
+    
+    // Character count for 1-minute audio chunks
+    // Based on ElevenLabs TTS speed: ~180-220 words per minute for Urdu
+    // Average word length in Urdu: 4-6 characters + spaces
+    // 60 seconds = 180-220 words = 900-1100 characters
+    // Target: exactly 1 minute = ~1000 characters
+    const minChunkSize = 900; // Minimum 54 seconds (allow slight under)
+    const targetChunkSize = 1000; // Target exactly 1 minute
+    const maxChunkSize = 1100; // Maximum 66 seconds (allow slight over)
+    
+    logger.info(`📝 Chunk size targets: Min=${minChunkSize}, Target=${targetChunkSize}, Max=${maxChunkSize} characters`);
+    
+    const chunks = [];
+    let currentChunk = '';
+    
+    // First, try to split by paragraphs (double line breaks)
+    const paragraphs = script.split(/\n\s*\n/);
+    logger.info(`📝 Found ${paragraphs.length} paragraphs to process`);
+    
+    for (let paragraphIndex = 0; paragraphIndex < paragraphs.length; paragraphIndex++) {
+      let paragraph = paragraphs[paragraphIndex].trim();
+      if (!paragraph) continue;
+      
+      logger.info(`📝 Processing paragraph ${paragraphIndex + 1}/${paragraphs.length} (${paragraph.length} chars)`);
+      
+      // If adding this paragraph would exceed max size, save current chunk first
+      if (currentChunk.length > 0 && (currentChunk.length + paragraph.length + 2) > maxChunkSize) {
+        // Save current chunk at paragraph boundary
+        if (currentChunk.length >= minChunkSize) {
+          chunks.push(currentChunk.trim());
+          logger.info(`✅ Chunk ${chunks.length} created at paragraph boundary: ${currentChunk.length} characters (${Math.round(currentChunk.length / 16.5)} seconds estimated)`);
+          currentChunk = paragraph; // Start new chunk with current paragraph
+        } else {
+          // Current chunk too small, try to add more content
+          logger.warn(`⚠️ Current chunk too small (${currentChunk.length} chars), adding paragraph anyway...`);
+          currentChunk += '\n\n' + paragraph;
+        }
+      } else if (currentChunk.length === 0) {
+        currentChunk = paragraph;
+      } else {
+        currentChunk += '\n\n' + paragraph;
+      }
+      
+      // Smart boundary detection: Prioritize sentence boundaries when reaching 1-minute target
+      if (currentChunk.length >= targetChunkSize && paragraphIndex < paragraphs.length - 1) {
+        // Try to find a sentence boundary near the target size for cleaner breaks
+        logger.info(`📝 Reached target size (${currentChunk.length} chars), looking for sentence boundary...`);
+        
+        const sentences = currentChunk.split(/([۔؟!])/);
+        let bestBreakPoint = '';
+        let remainder = '';
+        let foundGoodBreak = false;
+        
+        for (let i = 0; i < sentences.length; i += 2) {
+          const sentence = sentences[i] + (sentences[i + 1] || '');
+          bestBreakPoint += sentence;
+          
+          // If this sentence gets us close to target (within 100 chars), break here
+          if (bestBreakPoint.length >= (targetChunkSize - 100) && bestBreakPoint.length <= maxChunkSize) {
+            // Collect remaining sentences as remainder
+            for (let j = i + 2; j < sentences.length; j += 2) {
+              remainder += sentences[j] + (sentences[j + 1] || '');
+            }
+            
+            chunks.push(bestBreakPoint.trim());
+            logger.info(`✅ Chunk ${chunks.length} created at sentence boundary: ${bestBreakPoint.length} characters (~${Math.round(bestBreakPoint.length / 16.7)} seconds)`);
+            currentChunk = remainder.trim();
+            foundGoodBreak = true;
+            break;
+          }
+        }
+        
+        // If no good sentence break found, break at paragraph boundary
+        if (!foundGoodBreak) {
+          chunks.push(currentChunk.trim());
+          logger.info(`✅ Chunk ${chunks.length} created at paragraph boundary: ${currentChunk.length} characters (~${Math.round(currentChunk.length / 16.7)} seconds)`);
+          currentChunk = '';
+        }
+      }
+      // If we're approaching max size, force a sentence break
+      else if (currentChunk.length >= (maxChunkSize - 100) && paragraphIndex < paragraphs.length - 1) {
+        logger.info(`📝 Approaching max size (${currentChunk.length} chars), looking for sentence break...`);
+        
+        // Look for sentence endings within current chunk
+        const sentences = currentChunk.split(/([۔؟!])/);
+        let bestBreakPoint = '';
+        let remainder = '';
+        let foundGoodBreak = false;
+        
+        for (let i = 0; i < sentences.length; i += 2) {
+          const sentence = sentences[i] + (sentences[i + 1] || '');
+          bestBreakPoint += sentence;
+          
+          // If this sentence gets us to a good size range, break here
+          if (bestBreakPoint.length >= minChunkSize && bestBreakPoint.length <= maxChunkSize) {
+            // Collect remaining sentences as remainder
+            for (let j = i + 2; j < sentences.length; j += 2) {
+              remainder += sentences[j] + (sentences[j + 1] || '');
+            }
+            
+            // Create chunk at sentence boundary
+            chunks.push(bestBreakPoint.trim());
+            logger.info(`✅ Chunk ${chunks.length} created at sentence boundary: ${bestBreakPoint.length} characters (~${Math.round(bestBreakPoint.length / 16.7)} seconds)`);
+            currentChunk = remainder.trim();
+            foundGoodBreak = true;
+            break;
+          }
+        }
+        
+        // If no good sentence break found, continue with current chunk
+        if (!foundGoodBreak) {
+          logger.info(`📝 No good sentence break found, continuing with current chunk...`);
+        }
+      }
+    }
+    
+    // Add any remaining content
+    if (currentChunk.trim()) {
+      // Always add remaining content as a separate chunk to ensure full script processing
+      chunks.push(currentChunk.trim());
+      logger.info(`✅ Final chunk ${chunks.length} created: ${currentChunk.length} characters (${Math.round(currentChunk.length / 16.5)} seconds estimated)`);
+    }
+    
+    // If no paragraphs found, split by sentences
+    if (chunks.length === 0 && script.length > maxChunkSize) {
+      logger.info('📝 No paragraph breaks found, splitting by sentences...');
+      const sentences = script.split(/([۔؟!])/);
+      currentChunk = '';
+      
+      for (let i = 0; i < sentences.length; i += 2) {
+        const sentence = sentences[i] + (sentences[i + 1] || '');
+        
+        if (currentChunk.length > 0 && (currentChunk.length + sentence.length) > maxChunkSize) {
+          // Always create a chunk when we hit the max size
+          chunks.push(currentChunk.trim());
+          logger.info(`✅ Sentence-based chunk ${chunks.length} created: ${currentChunk.length} characters (~${Math.round(currentChunk.length / 16.7)} seconds)`);
+          currentChunk = sentence;
+        } else {
+          currentChunk += sentence;
+        }
+        
+        // Create chunk when we reach target size (1 minute)
+        if (currentChunk.length >= targetChunkSize) {
+          chunks.push(currentChunk.trim());
+          logger.info(`✅ Sentence-based chunk ${chunks.length} created: ${currentChunk.length} characters (~${Math.round(currentChunk.length / 16.7)} seconds)`);
+          currentChunk = '';
+        }
+      }
+      
+      if (currentChunk.trim()) {
+        chunks.push(currentChunk.trim());
+        logger.info(`✅ Final sentence-based chunk created: ${currentChunk.length} characters (${Math.round(currentChunk.length / 16.5)} seconds estimated)`);
+      }
+    }
+    
+    // If still no chunks (very short script), return as single chunk
+    if (chunks.length === 0) {
+      chunks.push(script);
+      logger.info(`✅ Single chunk created for short script: ${script.length} characters`);
+    }
+    
+    // Final validation and summary
+    logger.info(`\n🎯 CHUNKING COMPLETE - Created ${chunks.length} chunks (targeting 1-minute audio):`);
+    let totalChars = 0;
+    chunks.forEach((chunk, index) => {
+      const estimatedSeconds = Math.round(chunk.length / 16.7);
+      const status = estimatedSeconds >= 54 && estimatedSeconds <= 66 ? '✅' : 
+                    estimatedSeconds < 54 ? '⚠️ SHORT' : '⚠️ LONG';
+      logger.info(`   Chunk ${index + 1}: ${chunk.length} chars → ~${estimatedSeconds}s ${status}`);
+      totalChars += chunk.length;
+    });
+    logger.info(`📊 Total: ${totalChars} characters processed\n`);
+    
+    return chunks;
+    
+  } catch (error) {
+    logger.error('Error splitting script into chunks:', error);
+    return [script]; // Return original script as fallback
+  }
+}
+
+/**
+ * Generate audio using ElevenLabs TTS with automatic chunking for long scripts
  */
 async function generateAudio(script) {
   try {
@@ -720,64 +921,76 @@ async function generateAudio(script) {
       return null;
     }
     
-    // Handle ElevenLabs character limit (5000 chars)
-    let textToConvert = script;
-    if (script.length > 5000) {
-      textToConvert = script.substring(0, 5000);
-      logger.info('Script truncated for ElevenLabs (5000 char limit)');
+    // Split script into chunks if it's long
+    const chunks = splitScriptIntoChunks(script);
+    
+    if (chunks.length === 1 && chunks[0].length <= 5000) {
+      // Single chunk, process normally
+      return await generateSingleAudioChunk(chunks[0], ELEVENLABS_VOICE_ID);
     }
     
-    const response = await axios.post(
-      `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,
-      {
-        text: textToConvert,
-        model_id: 'eleven_v3', // ElevenLabs v3 alpha model for better Urdu pronunciation
-        voice_settings: {
-          stability: 0.5, // Natural setting for v3 alpha (Creative: 0.3, Natural: 0.5, Robust: 0.7)
-          similarity_boost: 0.8,
-          style: 0.0,
-          use_speaker_boost: true
-        }
-      },
-      {
-        headers: {
-          'xi-api-key': ELEVENLABS_API_KEY,
-          'Accept': 'audio/mpeg',
-          'Content-Type': 'application/json'
-        },
-        responseType: 'arraybuffer'
+    // Multiple chunks, process each and combine
+    logger.info(`🎵 Processing ${chunks.length} audio chunks...`);
+    const audioChunkPaths = [];
+    
+    for (let i = 0; i < chunks.length; i++) {
+      logger.info(`🎵 Generating audio chunk ${i + 1}/${chunks.length}...`);
+      
+      const chunkPath = await generateSingleAudioChunk(chunks[i], ELEVENLABS_VOICE_ID, i + 1);
+      if (chunkPath) {
+        audioChunkPaths.push(chunkPath);
+      } else {
+        logger.error(`Failed to generate audio chunk ${i + 1}`);
+        // Continue with other chunks instead of failing completely
       }
-    );
+      
+      // Add small delay between API calls to avoid rate limiting
+      if (i < chunks.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
     
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const audioPath = path.join('./output/voiceovers', `${timestamp}.mp3`);
+    if (audioChunkPaths.length === 0) {
+      logger.error('Failed to generate any audio chunks');
+      return null;
+    }
     
-    await fs.writeFile(audioPath, response.data);
-    logger.info(`🎵 Audio generated: ${audioPath}`);
+    // Combine audio chunks into single file
+    const combinedAudioPath = await combineAudioChunks(audioChunkPaths);
     
-    return audioPath;
+    // Clean up individual chunk files
+    for (const chunkPath of audioChunkPaths) {
+      try {
+        await fs.unlink(chunkPath);
+      } catch (error) {
+        logger.warn(`Failed to delete chunk file: ${chunkPath}`);
+      }
+    }
+    
+    logger.info(`🎵 Complete audio generated: ${combinedAudioPath}`);
+    return combinedAudioPath;
+    
   } catch (error) {
-    logger.error('ElevenLabs API error:', error.response?.data || error.message);
+    logger.error('ElevenLabs audio generation error:', error.response?.data || error.message);
     return null;
   }
 }
 
 /**
- * Generate audio with specific voice ID
+ * Generate audio for a single chunk with duration validation
  */
-async function generateAudioWithVoice(script, voiceId) {
+async function generateSingleAudioChunk(text, voiceId, chunkNumber = null) {
   try {
-    if (!script || script.length === 0) {
-      logger.warn('No script to convert to audio');
-      return null;
+    // Ensure text is within ElevenLabs limit
+    let textToConvert = text;
+    if (text.length > 5000) {
+      textToConvert = text.substring(0, 5000);
+      logger.warn(`Chunk ${chunkNumber || ''} truncated to 5000 characters`);
     }
     
-    // Handle ElevenLabs character limit (5000 chars)
-    let textToConvert = script;
-    if (script.length > 5000) {
-      textToConvert = script.substring(0, 5000);
-      logger.info('Script truncated for ElevenLabs (5000 char limit)');
-    }
+    // Calculate estimated duration (16.5 chars per second for Urdu)
+    const estimatedDuration = Math.round(textToConvert.length / 16.5);
+    logger.info(`🎵 Generating chunk ${chunkNumber || 1}: ${textToConvert.length} chars → ~${estimatedDuration}s estimated`);
     
     const response = await axios.post(
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
@@ -802,12 +1015,129 @@ async function generateAudioWithVoice(script, voiceId) {
     );
     
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const audioPath = path.join('./output/voiceovers', `${timestamp}.mp3`);
+    const chunkSuffix = chunkNumber ? `_chunk${chunkNumber}` : '';
+    const audioPath = path.join('./output/voiceovers', `${timestamp}${chunkSuffix}.mp3`);
     
     await fs.writeFile(audioPath, response.data);
-    logger.info(`🎵 Audio generated with custom voice: ${audioPath}`);
+    
+    // Validate duration is within 80-90 second range
+    const durationStatus = estimatedDuration >= 80 && estimatedDuration <= 90 ? 
+      '✅ PERFECT' : estimatedDuration < 80 ? '⚠️ SHORT' : '⚠️ LONG';
+    
+    logger.info(`🎵 Audio chunk ${chunkNumber || 1} generated: ${audioPath}`);
+    logger.info(`⏱️  Duration validation: ~${estimatedDuration}s ${durationStatus}`);
+    
+    if (estimatedDuration < 80) {
+      logger.warn(`⚠️  Chunk ${chunkNumber || 1} is shorter than 80s target (${estimatedDuration}s)`);
+    } else if (estimatedDuration > 90) {
+      logger.warn(`⚠️  Chunk ${chunkNumber || 1} is longer than 90s target (${estimatedDuration}s)`);
+    } else {
+      logger.info(`✅ Chunk ${chunkNumber || 1} duration is within 80-90s target range`);
+    }
     
     return audioPath;
+  } catch (error) {
+    logger.error(`❌ ElevenLabs API error for chunk ${chunkNumber || 1}:`);
+    logger.error(`Status: ${error.response?.status || 'Unknown'}`);
+    logger.error(`Message: ${error.message}`);
+    if (error.response?.data) {
+      logger.error(`Response Data:`, error.response.data);
+    }
+    logger.error(`Voice ID used: ${voiceId}`);
+    logger.error(`Text length: ${text.length} characters`);
+    return null;
+  }
+}
+
+/**
+ * Combine multiple audio chunks into a single file
+ * Uses simple binary concatenation for MP3 files
+ */
+async function combineAudioChunks(audioChunkPaths) {
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const combinedPath = path.join('./output/voiceovers', `${timestamp}_combined.mp3`);
+    
+    // Read all audio chunks and combine them
+    const audioBuffers = [];
+    for (const chunkPath of audioChunkPaths) {
+      const buffer = await fs.readFile(chunkPath);
+      audioBuffers.push(buffer);
+    }
+    
+    // Concatenate all buffers
+    const combinedBuffer = Buffer.concat(audioBuffers);
+    await fs.writeFile(combinedPath, combinedBuffer);
+    
+    logger.info(`🎵 Combined ${audioChunkPaths.length} audio chunks into: ${combinedPath}`);
+    return combinedPath;
+    
+  } catch (error) {
+    logger.error('Error combining audio chunks:', error);
+    // Return first chunk as fallback
+    return audioChunkPaths.length > 0 ? audioChunkPaths[0] : null;
+  }
+}
+
+/**
+ * Generate audio with specific voice ID and automatic chunking for long scripts
+ */
+async function generateAudioWithVoice(script, voiceId) {
+  try {
+    if (!script || script.length === 0) {
+      logger.warn('No script to convert to audio');
+      return null;
+    }
+    
+    // Split script into chunks if it's long
+    const chunks = splitScriptIntoChunks(script);
+    
+    if (chunks.length === 1 && chunks[0].length <= 5000) {
+      // Single chunk, process normally
+      return await generateSingleAudioChunk(chunks[0], voiceId);
+    }
+    
+    // Multiple chunks, process each and combine
+    logger.info(`🎵 Processing ${chunks.length} audio chunks with custom voice...`);
+    const audioChunkPaths = [];
+    
+    for (let i = 0; i < chunks.length; i++) {
+      logger.info(`🎵 Generating audio chunk ${i + 1}/${chunks.length} with custom voice...`);
+      
+      const chunkPath = await generateSingleAudioChunk(chunks[i], voiceId, i + 1);
+      if (chunkPath) {
+        audioChunkPaths.push(chunkPath);
+      } else {
+        logger.error(`Failed to generate audio chunk ${i + 1} with custom voice`);
+        // Continue with other chunks instead of failing completely
+      }
+      
+      // Add small delay between API calls to avoid rate limiting
+      if (i < chunks.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    
+    if (audioChunkPaths.length === 0) {
+      logger.error('Failed to generate any audio chunks with custom voice');
+      return null;
+    }
+    
+    // Combine audio chunks into single file
+    const combinedAudioPath = await combineAudioChunks(audioChunkPaths);
+    
+    // Clean up individual chunk files
+    for (const chunkPath of audioChunkPaths) {
+      try {
+        await fs.unlink(chunkPath);
+      } catch (error) {
+        logger.warn(`Failed to delete chunk file: ${chunkPath}`);
+      }
+    }
+    
+    logger.info(`🎵 Complete audio generated with custom voice: ${combinedAudioPath}`);
+    return combinedAudioPath;
+    
   } catch (error) {
     logger.error('ElevenLabs API error with custom voice:', error.response?.data || error.message);
     return null;
@@ -820,7 +1150,9 @@ async function generateAudioWithVoice(script, voiceId) {
 async function callVisualsAPI(content) {
   try {
     const visualsPrompt = `You are an ELITE MEDIA RESEARCH SPECIALIST for Vision Point - Pakistan's premier Urdu daily news update YouTube channel. Your anchor Younus Qasmi has created content that needs professional visual support. 
+
 🎯 PRIMARY MISSION Find VERIFIED, BROADCAST-READY VISUALS that exactly match the script narrative for seamless video editing integration. 
+
 📋 CRITICAL VERIFICATION REQUIREMENTS 
 
 COMPREHENSIVE CONTENT VERIFICATION MANDATORY: Access and verify every link's actual content before providing 
@@ -872,19 +1204,18 @@ GEOGRAPHIC/POLITICAL CONTENT: Find footage from multiple international perspecti
 Include Pakistani government responses where relevant 
 Provide historical context visuals for background 
 Cross-verify controversial claims across sources 
-QUALITY ASSURANCE CHECKLIST: Every link works and loads properly 
-Timestamps verified to show claimed content 
-Visual quality suitable for broadcast 
-No duplicate footage from same angle/source 
-Sources are credible and verifiable 
-Content authentically supports script narrative 
+QUALITY ASSURANCE CHECKLIST:  Every link works and loads properly 
+ Timestamps verified to show claimed content 
+ Visual quality suitable for broadcast 
+ No duplicate footage from same angle/source 
+ Sources are credible and verifiable 
+ Content authentically supports script narrative 
 🚨 CRITICAL SUCCESS FACTORS ACCURACY OVER QUANTITY - Better to reject poor footage than include unusable content 
 EDITOR-FRIENDLY FORMAT - Clear timestamps and descriptions for easy editing 
 CREDIBILITY FOCUS - Only verified, authentic sources 
 SCRIPT ALIGNMENT - Visuals must support, not contradict, the narrative 
 PROFESSIONAL STANDARD - Broadcast-quality footage only 
-Now analyze the provided script and deliver ONLY verified, working links with content that specifically matches what Anchor Younus Qasmi is describing. Format everything for immediate WhatsApp sharing with the video editor. 
-Make sure to also generate most of the images with ai visualizing all paragraphs and sentences meanings. (Script past)
+Now analyze the provided script and deliver ONLY verified, working links with content that specifically matches what Anchor Younus Qasmi is describing. Format everything for immediate WhatsApp sharing with the video editor. ${content} also generate all ai images visualizing all sentences of this script.
 
 Script Content: ${content}`;
 
@@ -1038,30 +1369,33 @@ async function processHeadlineSelection(number, messageId, remoteJid) {
     // Extract headline text (remove number prefix)
     const headlineText = selectedHeadline.replace(/^\d+\.\s*/, '');
     
-    const MASTER_PROMPT = `You are an AI Script Generator for Vision Point — a bold pro-Pakistan Urdu digital news channel. 
-Your job is to monitor every incoming message in this WhatsApp group and create relevant news scripts based on the actual content provided.
+    const MASTER_PROMPT = `You are a professional scriptwriter for Pakistani digital media. Your task is to take any given input (news report, editorial note, quotes, or data) and transform it into a video script in simple Urdu.
 
-Your task: 
-1. Take the input message as the BASE NEWS ITEM. 
-2. Create a FULL URDU SCRIPT in Vision Point style that focuses on the ACTUAL TOPIC mentioned in the base news item.
-3. Script must always follow these rules: 
-   - Length: Minimum 1300 words (9-minute monologue when spoken). 
-   - Heading: Only ONE main subject heading (never more). 
-   - Language: Urdu, spoken-anchor style, intellectual yet simple and emotional. 
-   - Narrative: Focus on the actual topic provided. If it's about India, be critical of Modi/BJP/RSS. If it's about China-USA relations, focus on that. If it's about other countries, cover those topics appropriately.
-   - Pakistani Perspective: Always provide analysis from Pakistan's strategic viewpoint and national interests.
-   - Depth: Expand on the context with additional researched details, historic parallels, and global perspective relevant to the actual topic.
-   - Tone: Serious, journalistic, research-based, emotional where needed, but always professional. 
+The script must always follow these rules:
 
-4. IMPORTANT: Do NOT force India-related content if the topic is about something else. Focus on the actual subject matter provided.
-5. DO NOT summarize only — always expand into a full-fledged script with analysis, critique, narrative-building, and rhetorical questions for engagement. 
+One Main Heading Only — start with a bold, powerful Urdu headline (no subheadings).
 
-Output Format: 
-- Start with ONE main heading (title of the script). 
-- Then full monologue body text in Urdu. 
+Style & Tone — emotional, engaging, and slightly dramatic, designed to connect with a Pakistani audience and go viral.
 
-Your Goal: 
-To automatically generate powerful, viral-ready Vision Point scripts that accurately reflect the input topic while maintaining Pakistani perspective.`;
+Language — very simple Urdu (easy to understand for a general audience). Avoid difficult political or academic terms.
+
+Length — expand content into a detailed narrative, enough for a 9–10 minute video script.
+
+Flow —
+- Start with a powerful opening line addressing "ناظرین!" or similar.
+- Build the story step by step with examples, facts, and emotional appeal.
+- Expose contradictions, weaknesses, or hypocrisies if mentioned in the input.
+- End with a thought-provoking or emotional closing question to the audience.
+
+Narrative Style — mix factual reporting with commentary and emotional storytelling (similar to viral Pakistani political YouTube channels).
+
+Policy Reminder — No extra headings, no bullet points in the final script. Just one headline + smooth Urdu paragraphs.
+
+IMPORTANT POLICY: Ensure all content aligns with Pakistani official government and Pakistan Army's point of view. Nothing should be against their stance or policies. Always maintain pro-Pakistan perspective while staying within official policy guidelines.
+
+Content Guidelines: Always update and refine the style of words and sentence structure in each script to keep the content fresh and engaging while maintaining consistency with Pakistani national interests.
+
+Your role: Always convert any given input (news article, editorial, quotes, list of statements, etc.) into this format while ensuring complete alignment with Pakistani government and military perspectives.`;
 
     const scriptPrompt = `${MASTER_PROMPT}
 
@@ -1137,11 +1471,11 @@ async function getVoiceId(voiceName) {
   try {
     // Predefined voice mappings for better performance and reliability
     const voiceMappings = {
-      'musawar abbasi': 'p2QMAuFNgXmBsO95wovm',
-      'aftab nazeer': 'iclgq0atV8BdU3luuqFX',
-      'faisal aziz': 'Dtl4nevROLF9XbYzd4Bj',
-      'female anchor': 'BIcnYTh1FCI6LhJAcEuU',
-      'default': 'BIcnYTh1FCI6LhJAcEuU' // Female anchor
+      'musawar abbasi': 'n3XdEBmNEtND6Li1NZbs',
+      'female anchor': '1t3sfuW00ixjYR0WrUwv',
+      'faisal aziz': 'lwsGaVZjIr2KhqDUkefb',
+      'mufti irfan': 'WddxWhROnFlZyX4R6m3C',
+      'default': '1t3sfuW00ixjYR0WrUwv' // Female anchor
     };
     
     // Normalize voice name to lowercase for case-insensitive matching
@@ -1176,7 +1510,7 @@ async function getVoiceId(voiceName) {
   } catch (error) {
     logger.error('Error fetching voices:', error.response?.data || error.message);
     // Return default voice on error
-    return 'BIcnYTh1FCI6LhJAcEuU'; // Female anchor
+    return '1t3sfuW00ixjYR0WrUwv'; // Female anchor
   }
 }
 
