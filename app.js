@@ -466,24 +466,30 @@ Your role: Always convert any given input (news article, editorial, quotes, list
  */
 async function processVisualsOnly(content, messageId, remoteJid) {
   try {
-    logger.info('🎨 Generating visuals only...');
+    logger.info('🎨 Starting processVisualsOnly...');
+    logger.info('📝 Content preview:', content.substring(0, 100) + '...');
+    logger.info('📱 Remote JID:', remoteJid);
     
     const response = await callVisualsAPI(content);
     
+    logger.info('🔍 API response received:', !!response);
+    
     if (response) {
+      logger.info('📤 Sending visuals to user...');
       // Send visuals directly to the user
       await sock.sendMessage(remoteJid, {
         text: response
       });
       
-      logger.info('✅ Visuals sent successfully');
+      logger.info('✅ Visuals sent successfully to:', remoteJid);
     } else {
+      logger.error('❌ No response from visuals API');
       await sock.sendMessage(remoteJid, {
         text: '❌ Failed to generate visuals. Please try again.'
       });
     }
   } catch (error) {
-    logger.error('Error in processVisualsOnly:', error);
+    logger.error('❌ Error in processVisualsOnly:', error);
     await sock.sendMessage(remoteJid, {
       text: '❌ Error generating visuals. Please try again.'
     });
@@ -731,14 +737,14 @@ function splitScriptIntoChunks(script) {
     logger.info('📝 Starting script chunking process...');
     logger.info(`📝 Total script length: ${script.length} characters`);
     
-    // Character count for 1-minute audio chunks
+    // More precise character count for 70-90 seconds of speech
     // Based on ElevenLabs TTS speed: ~180-220 words per minute for Urdu
     // Average word length in Urdu: 4-6 characters + spaces
-    // 60 seconds = 180-220 words = 900-1100 characters
-    // Target: exactly 1 minute = ~1000 characters
-    const minChunkSize = 900; // Minimum 54 seconds (allow slight under)
-    const targetChunkSize = 1000; // Target exactly 1 minute
-    const maxChunkSize = 1100; // Maximum 66 seconds (allow slight over)
+    // 70 seconds = 210-260 words = 1050-1300 characters
+    // 90 seconds = 270-330 words = 1350-1650 characters
+    const minChunkSize = 1050; // Minimum 70 seconds
+    const targetChunkSize = 1200; // Target around 75-80 seconds  
+    const maxChunkSize = 1650; // Maximum 90 seconds
     
     logger.info(`📝 Chunk size targets: Min=${minChunkSize}, Target=${targetChunkSize}, Max=${maxChunkSize} characters`);
     
@@ -756,7 +762,7 @@ function splitScriptIntoChunks(script) {
       logger.info(`📝 Processing paragraph ${paragraphIndex + 1}/${paragraphs.length} (${paragraph.length} chars)`);
       
       // If adding this paragraph would exceed max size, save current chunk first
-      if (currentChunk.length > 0 && (currentChunk.length + paragraph.length + 2) > maxChunkSize) {
+      if (currentChunk.length > 0 && (currentChunk.length + paragraph.length) > maxChunkSize) {
         // Save current chunk at paragraph boundary
         if (currentChunk.length >= minChunkSize) {
           chunks.push(currentChunk.trim());
@@ -764,7 +770,7 @@ function splitScriptIntoChunks(script) {
           currentChunk = paragraph; // Start new chunk with current paragraph
         } else {
           // Current chunk too small, try to add more content
-          logger.warn(`⚠️ Current chunk too small (${currentChunk.length} chars), adding paragraph anyway...`);
+          logger.warn(`⚠️ Current chunk too small (${currentChunk.length} chars), trying to optimize...`);
           currentChunk += '\n\n' + paragraph;
         }
       } else if (currentChunk.length === 0) {
@@ -773,75 +779,41 @@ function splitScriptIntoChunks(script) {
         currentChunk += '\n\n' + paragraph;
       }
       
-      // Smart boundary detection: Prioritize sentence boundaries when reaching 1-minute target
-      if (currentChunk.length >= targetChunkSize && paragraphIndex < paragraphs.length - 1) {
-        // Try to find a sentence boundary near the target size for cleaner breaks
-        logger.info(`📝 Reached target size (${currentChunk.length} chars), looking for sentence boundary...`);
-        
-        const sentences = currentChunk.split(/([۔؟!])/);
-        let bestBreakPoint = '';
-        let remainder = '';
-        let foundGoodBreak = false;
-        
-        for (let i = 0; i < sentences.length; i += 2) {
-          const sentence = sentences[i] + (sentences[i + 1] || '');
-          bestBreakPoint += sentence;
-          
-          // If this sentence gets us close to target (within 100 chars), break here
-          if (bestBreakPoint.length >= (targetChunkSize - 100) && bestBreakPoint.length <= maxChunkSize) {
-            // Collect remaining sentences as remainder
-            for (let j = i + 2; j < sentences.length; j += 2) {
-              remainder += sentences[j] + (sentences[j + 1] || '');
-            }
-            
-            chunks.push(bestBreakPoint.trim());
-            logger.info(`✅ Chunk ${chunks.length} created at sentence boundary: ${bestBreakPoint.length} characters (~${Math.round(bestBreakPoint.length / 16.7)} seconds)`);
-            currentChunk = remainder.trim();
-            foundGoodBreak = true;
-            break;
-          }
-        }
-        
-        // If no good sentence break found, break at paragraph boundary
-        if (!foundGoodBreak) {
+      // Smart boundary detection: Check if we're in 70-90s range (1050-1650 chars)
+      if (currentChunk.length >= minChunkSize) {
+        // Priority 1: If we're at target size and at paragraph end, break here
+        if (currentChunk.length >= targetChunkSize && paragraphIndex < paragraphs.length - 1) {
           chunks.push(currentChunk.trim());
-          logger.info(`✅ Chunk ${chunks.length} created at paragraph boundary: ${currentChunk.length} characters (~${Math.round(currentChunk.length / 16.7)} seconds)`);
+          logger.info(`✅ Chunk ${chunks.length} created at paragraph boundary: ${currentChunk.length} characters (${Math.round(currentChunk.length / 16.5)} seconds estimated)`);
           currentChunk = '';
         }
-      }
-      // If we're approaching max size, force a sentence break
-      else if (currentChunk.length >= (maxChunkSize - 100) && paragraphIndex < paragraphs.length - 1) {
-        logger.info(`📝 Approaching max size (${currentChunk.length} chars), looking for sentence break...`);
-        
-        // Look for sentence endings within current chunk
-        const sentences = currentChunk.split(/([۔؟!])/);
-        let bestBreakPoint = '';
-        let remainder = '';
-        let foundGoodBreak = false;
-        
-        for (let i = 0; i < sentences.length; i += 2) {
-          const sentence = sentences[i] + (sentences[i + 1] || '');
-          bestBreakPoint += sentence;
+        // Priority 2: If we're approaching max size, try to break at sentence end within this paragraph
+        else if (currentChunk.length >= (maxChunkSize - 200) && paragraphIndex < paragraphs.length - 1) {
+          logger.info(`📝 Approaching max size (${currentChunk.length} chars), looking for sentence break...`);
           
-          // If this sentence gets us to a good size range, break here
-          if (bestBreakPoint.length >= minChunkSize && bestBreakPoint.length <= maxChunkSize) {
-            // Collect remaining sentences as remainder
-            for (let j = i + 2; j < sentences.length; j += 2) {
-              remainder += sentences[j] + (sentences[j + 1] || '');
-            }
+          // Look for sentence endings within current chunk
+          const sentences = currentChunk.split(/([۔؟!])/);
+          let bestBreakPoint = '';
+          let remainder = '';
+          
+          for (let i = 0; i < sentences.length; i += 2) {
+            const sentence = sentences[i] + (sentences[i + 1] || '');
+            bestBreakPoint += sentence;
             
-            // Create chunk at sentence boundary
-            chunks.push(bestBreakPoint.trim());
-            logger.info(`✅ Chunk ${chunks.length} created at sentence boundary: ${bestBreakPoint.length} characters (~${Math.round(bestBreakPoint.length / 16.7)} seconds)`);
-            currentChunk = remainder.trim();
-            foundGoodBreak = true;
-            break;
+            // If this sentence gets us to a good size (70-90s range), break here
+            if (bestBreakPoint.length >= minChunkSize && bestBreakPoint.length <= maxChunkSize) {
+              // Collect remaining sentences as remainder
+              for (let j = i + 2; j < sentences.length; j += 2) {
+                remainder += sentences[j] + (sentences[j + 1] || '');
+              }
+              
+              // Create chunk at sentence boundary
+              chunks.push(bestBreakPoint.trim());
+              logger.info(`✅ Chunk ${chunks.length} created at sentence boundary: ${bestBreakPoint.length} characters (${Math.round(bestBreakPoint.length / 16.5)} seconds estimated)`);
+              currentChunk = remainder.trim();
+              break;
+            }
           }
-        }
-        
-        // If no good sentence break found, continue with current chunk
-        if (!foundGoodBreak) {
-          logger.info(`📝 No good sentence break found, continuing with current chunk...`);
         }
       }
     }
@@ -865,16 +837,16 @@ function splitScriptIntoChunks(script) {
         if (currentChunk.length > 0 && (currentChunk.length + sentence.length) > maxChunkSize) {
           // Always create a chunk when we hit the max size
           chunks.push(currentChunk.trim());
-          logger.info(`✅ Sentence-based chunk ${chunks.length} created: ${currentChunk.length} characters (~${Math.round(currentChunk.length / 16.7)} seconds)`);
+          logger.info(`✅ Sentence-based chunk ${chunks.length} created: ${currentChunk.length} characters (${Math.round(currentChunk.length / 16.5)} seconds estimated)`);
           currentChunk = sentence;
         } else {
           currentChunk += sentence;
         }
         
-        // Create chunk when we reach target size (1 minute)
+        // Create chunk when we reach target size
         if (currentChunk.length >= targetChunkSize) {
           chunks.push(currentChunk.trim());
-          logger.info(`✅ Sentence-based chunk ${chunks.length} created: ${currentChunk.length} characters (~${Math.round(currentChunk.length / 16.7)} seconds)`);
+          logger.info(`✅ Sentence-based chunk ${chunks.length} created: ${currentChunk.length} characters (${Math.round(currentChunk.length / 16.5)} seconds estimated)`);
           currentChunk = '';
         }
       }
@@ -892,12 +864,12 @@ function splitScriptIntoChunks(script) {
     }
     
     // Final validation and summary
-    logger.info(`\n🎯 CHUNKING COMPLETE - Created ${chunks.length} chunks (targeting 1-minute audio):`);
+    logger.info(`\n🎯 CHUNKING COMPLETE - Created ${chunks.length} chunks:`);
     let totalChars = 0;
     chunks.forEach((chunk, index) => {
-      const estimatedSeconds = Math.round(chunk.length / 16.7);
-      const status = estimatedSeconds >= 54 && estimatedSeconds <= 66 ? '✅' : 
-                    estimatedSeconds < 54 ? '⚠️ SHORT' : '⚠️ LONG';
+      const estimatedSeconds = Math.round(chunk.length / 16.5);
+      const status = estimatedSeconds >= 80 && estimatedSeconds <= 90 ? '✅' : 
+                    estimatedSeconds < 80 ? '⚠️ SHORT' : '⚠️ LONG';
       logger.info(`   Chunk ${index + 1}: ${chunk.length} chars → ~${estimatedSeconds}s ${status}`);
       totalChars += chunk.length;
     });
@@ -1149,6 +1121,9 @@ async function generateAudioWithVoice(script, voiceId) {
  */
 async function callVisualsAPI(content) {
   try {
+    logger.info('🔍 Starting visuals API call...');
+    logger.info('📝 Content length:', content.length);
+    
     const visualsPrompt = `You are an ELITE MEDIA RESEARCH SPECIALIST for Vision Point - Pakistan's premier Urdu daily news update YouTube channel. Your anchor Younus Qasmi has created content that needs professional visual support. 
 
 🎯 PRIMARY MISSION Find VERIFIED, BROADCAST-READY VISUALS that exactly match the script narrative for seamless video editing integration. 
@@ -1219,6 +1194,7 @@ Now analyze the provided script and deliver ONLY verified, working links with co
 
 Script Content: ${content}`;
 
+    logger.info('🌐 Making API call to Perplexity...');
     const response = await axios.post('https://api.perplexity.ai/chat/completions', {
       model: 'sonar',
       messages: [
@@ -1236,12 +1212,20 @@ Script Content: ${content}`;
       }
     });
 
-    return response.data.choices[0].message.content;
+    logger.info('✅ API call successful');
+    logger.info('📊 Response status:', response.status);
+    logger.info('📝 Response data structure:', Object.keys(response.data));
+    
+    const visualsContent = response.data.choices[0].message.content;
+    logger.info('🎨 Visuals content length:', visualsContent ? visualsContent.length : 0);
+    logger.info('🔍 First 200 chars of response:', visualsContent ? visualsContent.substring(0, 200) + '...' : 'No content');
+    
+    return visualsContent;
   } catch (error) {
-    logger.error('Visuals API error:', error.message);
+    logger.error('❌ Visuals API error:', error.message);
     if (error.response) {
-      logger.error('Status:', error.response.status);
-      logger.error('Data:', error.response.data);
+      logger.error('📊 Error status:', error.response.status);
+      logger.error('📝 Error data:', error.response.data);
     }
     return null;
   }
@@ -1471,10 +1455,11 @@ async function getVoiceId(voiceName) {
   try {
     // Predefined voice mappings for better performance and reliability
     const voiceMappings = {
-      'musawar abbasi': 'n3XdEBmNEtND6Li1NZbs',
       'female anchor': '1t3sfuW00ixjYR0WrUwv',
-      'faisal aziz': 'lwsGaVZjIr2KhqDUkefb',
-      'mufti irfan': 'WddxWhROnFlZyX4R6m3C',
+      'faisal': 'yMh3XlxlKciyQtb9aaKf',
+      'emaan': 'NSKerni0PGvnWc5PhIaJ',
+      'musawar': 'XCkZqFlln3hpafGy0oM8',
+      'aftab': 'N3Vp5nz3tT8lqNywhElB',
       'default': '1t3sfuW00ixjYR0WrUwv' // Female anchor
     };
     
